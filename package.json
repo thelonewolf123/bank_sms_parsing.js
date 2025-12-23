@@ -1,0 +1,21 @@
+{
+  "name": "bank_sms_parsing.js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:thelonewolf123/bank_sms_parsing.js.git",
+  "author": "harishk-pyt <harish.k@pickyourtrail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "npx ts-node src/main.ts"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.0.0"
+  }
+}
