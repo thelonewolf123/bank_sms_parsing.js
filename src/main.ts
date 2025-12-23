@@ -7,6 +7,9 @@ import {
 } from "./services/classifier";
 import path from "path";
 
+// Set to a number to limit documents processed, or null to process all
+const MAX_DOCS: number | null = 1000;
+
 interface GroupClassification {
   groupId: number;
   memberCount: number;
@@ -18,11 +21,19 @@ async function main() {
   const csvPath = path.join(__dirname, "../data/sms_filtered.csv");
 
   console.log("Loading SMS data...");
-  const records = parseCsv(csvPath);
-  console.log(`Loaded ${records.length} SMS records`);
+  let records = parseCsv(csvPath);
 
-  console.log("\nGrouping SMS by TF-IDF similarity...");
-  const groups = groupSmsBySimilarity(records, 0.4);
+  if (MAX_DOCS !== null) {
+    records = records.slice(0, MAX_DOCS);
+    console.log(
+      `Processing first ${MAX_DOCS} of ${records.length} SMS records`
+    );
+  } else {
+    console.log(`Loaded ${records.length} SMS records`);
+  }
+
+  console.log("\nGrouping SMS by K-means clustering...");
+  const groups = groupSmsBySimilarity(records, { method: "kmeans" });
   console.log(`Created ${groups.length} groups`);
 
   console.log("\nSampling from groups and classifying...");

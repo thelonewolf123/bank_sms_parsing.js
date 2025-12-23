@@ -10,10 +10,15 @@
     "start": "npx ts-node src/main.ts"
   },
   "dependencies": {
-    "@huggingface/transformers": "^3.8.1"
+    "@huggingface/transformers": "^3.8.1",
+    "ml-distance": "^4.0.1",
+    "ml-kmeans": "^7.0.0",
+    "natural": "^8.1.0"
   },
   "devDependencies": {
+    "@types/natural": "^5.1.5",
     "@types/node": "^20.0.0",
+    "esbuild": "^0.27.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.0.0"

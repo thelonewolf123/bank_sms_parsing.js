@@ -1,5 +1,5 @@
-import { TfIdf } from "../lib/tfidf";
-import { SmsRecord } from "../utils/csvParser";
+import { clusterTexts, groupTextsByDistance } from "../lib/clustering.js";
+import { SmsRecord } from "../utils/csvParser.js";
 
 export interface SmsGroup {
   centroidIndex: number;
@@ -7,47 +7,51 @@ export interface SmsGroup {
   sample: SmsRecord;
 }
 
+export interface ClusteringOptions {
+  method: "kmeans" | "distance";
+  numClusters?: number; // For kmeans
+  distanceThreshold?: number; // For distance-based grouping
+}
+
+/**
+ * Group SMS messages by similarity using K-means clustering
+ */
 export function groupSmsBySimilarity(
   records: SmsRecord[],
-  similarityThreshold = 0.5
+  options: ClusteringOptions = { method: "kmeans" }
 ): SmsGroup[] {
-  const tfidf = new TfIdf();
   const texts = records.map((r) => r.text);
-  tfidf.addDocuments(texts);
 
-  // Compute all TF-IDF vectors
-  const vectors: Map<string, number>[] = [];
-  for (let i = 0; i < tfidf.documentCount; i++) {
-    vectors.push(tfidf.getTfIdfVector(i));
+  let clusterLabels: number[];
+
+  if (options.method === "kmeans") {
+    const result = clusterTexts(texts, options.numClusters);
+    clusterLabels = result.clusters;
+  } else {
+    clusterLabels = groupTextsByDistance(
+      texts,
+      options.distanceThreshold ?? 0.8
+    );
   }
 
-  // Simple clustering: assign each document to the first group it's similar enough to
-  const groups: SmsGroup[] = [];
-  const assigned = new Set<number>();
-
-  for (let i = 0; i < vectors.length; i++) {
-    if (assigned.has(i)) continue;
-
-    // Start a new group with this document as centroid
-    const group: SmsGroup = {
-      centroidIndex: i,
-      members: [i],
-      sample: records[i]
-    };
-    assigned.add(i);
-
-    // Find all similar documents
-    for (let j = i + 1; j < vectors.length; j++) {
-      if (assigned.has(j)) continue;
-
-      const similarity = tfidf.cosineSimilarity(vectors[i], vectors[j]);
-      if (similarity >= similarityThreshold) {
-        group.members.push(j);
-        assigned.add(j);
-      }
+  // Group records by cluster label
+  const clusterMap = new Map<number, number[]>();
+  clusterLabels.forEach((label, idx) => {
+    if (!clusterMap.has(label)) {
+      clusterMap.set(label, []);
     }
+    clusterMap.get(label)!.push(idx);
+  });
 
-    groups.push(group);
+  // Convert to SmsGroup format
+  const groups: SmsGroup[] = [];
+  for (const [, members] of clusterMap) {
+    const centroidIndex = members[0]; // Use first member as representative
+    groups.push({
+      centroidIndex,
+      members,
+      sample: records[centroidIndex]
+    });
   }
 
   return groups;
