@@ -6,6 +6,10 @@ import {
 const CATEGORIES = [
   "bank_transaction_sms",
   "failed_bank_transaction_sms",
+
+  "upi_transaction_sms",
+  "failed_upi_transaction_sms",
+
   "promotional",
   "other"
 ] as const;

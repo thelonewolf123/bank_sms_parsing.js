@@ -44,6 +44,10 @@ async function main() {
     {
       bank_transaction_sms: { groups: 0, messages: 0 },
       failed_bank_transaction_sms: { groups: 0, messages: 0 },
+
+      upi_transaction_sms: { groups: 0, messages: 0 },
+      failed_upi_transaction_sms: { groups: 0, messages: 0 },
+
       promotional: { groups: 0, messages: 0 },
       other: { groups: 0, messages: 0 }
     };
